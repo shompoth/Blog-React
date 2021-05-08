@@ -1,0 +1,31 @@
+.Input {
+  margin-bottom: 20px;
+}
+
+.Input label {
+  text-transform: uppercase;
+  font-weight: 600;
+  color: #19456b;
+  display: block;
+}
+
+.Input input,
+.Input select,
+.Input textarea {
+  width: 100%;
+  padding: 10px;
+  font-size: 1rem;
+  font-family: Arial;
+  border-radius: 4px;
+  border: 1px solid silver;
+  margin-top: 3px;
+}
+
+.invalid {
+  background: #f3c7c7;
+  border: 1px solid #e45454;
+}
+
+.Input small {
+  color: red;
+}
