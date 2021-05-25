@@ -1,8 +1,11 @@
 // Librairies
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import classes from "./ManageArticle.module.css";
 import axios from "../../../config/axios-firebase";
 import routes from "../../../config/routes";
+import { checkValidity } from "../../../shared/utility";
+import fire from "../../../config/firebase";
+import { toast } from "react-toastify";
 
 // Composants
 import Input from "../../../Components/UI/Input/Input";
@@ -16,13 +19,9 @@ function ManageArticle(props) {
         type: "text",
         placeholder: "Titre de l'article",
       },
-      value:
-        props.location.state && props.location.state.article
-          ? props.location.state.article.titre
-          : "",
+      value: props.location.state && props.location.state.article ? props.location.state.article.titre : "",
       label: "Titre",
-      valid:
-        props.location.state && props.location.state.article ? true : false,
+      valid: props.location.state && props.location.state.article ? true : false,
       validation: {
         required: true,
         minLength: 5,
@@ -34,32 +33,23 @@ function ManageArticle(props) {
     accroche: {
       elementType: "textarea",
       elementConfig: {},
-      value:
-        props.location.state && props.location.state.article
-          ? props.location.state.article.accroche
-          : "",
+      value: props.location.state && props.location.state.article ? props.location.state.article.accroche : "",
       label: "Accroche",
-      valid:
-        props.location.state && props.location.state.article ? true : false,
+      valid: props.location.state && props.location.state.article ? true : false,
       validation: {
         required: true,
         minLength: 10,
         maxLength: 140,
       },
       touched: false,
-      errorMessage:
-        "L'accroche ne doit pas être vide et doit être comprise entre 10 et 140 caractères",
+      errorMessage: "L'accroche ne doit pas être vide et doit être comprise entre 10 et 140 caractères",
     },
     contenu: {
       elementType: "textarea",
       elementConfig: {},
-      value:
-        props.location.state && props.location.state.article
-          ? props.location.state.article.contenu
-          : "",
+      value: props.location.state && props.location.state.article ? props.location.state.article.contenu : "",
       label: "Contenu de l'article",
-      valid:
-        props.location.state && props.location.state.article ? true : false,
+      valid: props.location.state && props.location.state.article ? true : false,
       validation: {
         required: true,
       },
@@ -72,13 +62,9 @@ function ManageArticle(props) {
         type: "text",
         placeholder: "Auteur de l'article",
       },
-      value:
-        props.location.state && props.location.state.article
-          ? props.location.state.article.auteur
-          : "",
+      value: props.location.state && props.location.state.article ? props.location.state.article.auteur : "",
       label: "Auteur",
-      valid:
-        props.location.state && props.location.state.article ? true : false,
+      valid: props.location.state && props.location.state.article ? true : false,
       validation: {
         required: true,
       },
@@ -93,35 +79,21 @@ function ManageArticle(props) {
           { value: false, displayValue: "Publié" },
         ],
       },
-      value:
-        props.location.state && props.location.state.article
-          ? props.location.state.article.brouillon
-          : "",
+      value: props.location.state && props.location.state.article ? props.location.state.article.brouillon : "",
       label: "Etat",
       valid: true,
       validation: {},
     },
   });
 
-  const [validForm, setValidForm] = useState(
-    props.location.state && props.location.state.article ? true : false
-  );
+  const [validForm, setValidForm] = useState(props.location.state && props.location.state.article ? true : false);
+
+  //ComponentDidUpdate
+  useEffect(() => {
+    document.title = "Gérer un article";
+  });
 
   // Fonctions
-  const checkValidity = (value, rules) => {
-    let isValid = true;
-    if (rules.required) {
-      isValid = value.trim() !== "" && isValid;
-    }
-    if (rules.minLength) {
-      isValid = value.length >= rules.minLength && isValid;
-    }
-    if (rules.maxLength) {
-      isValid = value.length <= rules.maxLength && isValid;
-    }
-    return isValid;
-  };
-
   const inputChangedHandler = (event, id) => {
     //Change la valeur
     const newInputs = { ...inputs };
@@ -129,10 +101,7 @@ function ManageArticle(props) {
     newInputs[id].touched = true;
 
     // Verification de la valeur
-    newInputs[id].valid = checkValidity(
-      event.target.value,
-      newInputs[id].validation
-    );
+    newInputs[id].valid = checkValidity(event.target.value, newInputs[id].validation);
     setInputs(newInputs);
     // Verification formulaire
     let formIsValid = true;
@@ -177,31 +146,39 @@ function ManageArticle(props) {
       date: Date.now(),
       slug: slug,
     };
-    // for (let input in inputs) {
-    //   article.input = inputs.input.value;
-    // }
 
-    if (props.location.state && props.location.state.article) {
-      axios
-        .put("/articles/" + props.location.state.article.id + ".json", article)
-        .then((response) => {
-          console.log(response);
-          props.history.replace(routes.ARTICLES + "/" + article.slug);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    } else {
-      axios
-        .post("/articles.json", article)
-        .then((response) => {
-          console.log(response);
-          props.history.replace(routes.ARTICLES);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    }
+    fire
+      .auth()
+      .currentUser.getIdToken()
+      .then((token) => {
+        if (props.location.state && props.location.state.article) {
+          axios
+            .put("/articles/" + props.location.state.article.id + ".json?auth=" + token, article)
+            .then((response) => {
+              console.log(response);
+              toast.success("Article modifié avec succès");
+              props.history.replace(routes.ARTICLES + "/" + article.slug);
+            })
+            .catch((error) => {
+              console.log(error);
+            });
+        } else {
+          axios
+            .post("/articles.json?auth=" + token, article)
+            .then((response) => {
+              console.log(response);
+              toast.success("Article ajouté avec succès");
+
+              props.history.replace(routes.ARTICLES);
+            })
+            .catch((error) => {
+              console.log(error);
+            });
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
 
   // Variables
@@ -230,26 +207,14 @@ function ManageArticle(props) {
         />
       ))}
       <div className={classes.submit}>
-        <input
-          type="submit"
-          value={
-            props.location.state && props.location.state.article
-              ? "Modifier un article"
-              : "Ajouter un article"
-          }
-          disabled={!validForm}
-        />
+        <input type="submit" value={props.location.state && props.location.state.article ? "Modifier un article" : "Ajouter un article"} disabled={!validForm} />
       </div>
     </form>
   );
 
   return (
     <div className="container">
-      {props.location.state && props.location.state.article ? (
-        <h1>Modifier</h1>
-      ) : (
-        <h1>Ajouter</h1>
-      )}
+      {props.location.state && props.location.state.article ? <h1>Modifier</h1> : <h1>Ajouter</h1>}
 
       {form}
     </div>

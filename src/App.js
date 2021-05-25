@@ -1,8 +1,9 @@
 // Librairies
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Route, Switch } from "react-router-dom";
 import "./App.css";
 import routes from "./config/routes";
+import fire from "./config/firebase";
 
 // Composants
 import Layout from "./hoc/Layout/Layout";
@@ -11,17 +12,38 @@ import Contact from "./Components/Contact/Contact";
 import Articles from "./Containers/Articles/Articles";
 import Article from "./Containers/Articles/Article/Article";
 import ManageArticle from "./Containers/Admin/ManageArticle/ManageArticle";
+import Authentification from "./Containers/Security/Authentification/Authentification";
 
 function App() {
+  // State
+  const [user, setUser] = useState("");
+
+  // ComponentDidMount
+  useEffect(() => {
+    authListener();
+  }, []);
+
+  // Fonctions
+  const authListener = () => {
+    fire.auth().onAuthStateChanged((user) => {
+      if (user) {
+        setUser(user);
+      } else {
+        setUser("");
+      }
+    });
+  };
+
   return (
     <div className="App">
-      <Layout>
+      <Layout user={user}>
         <Switch>
           <Route exact path={routes.HOME} component={Home} />
           <Route path={routes.CONTACT} component={Contact} />
           <Route exact path={routes.ARTICLES} component={Articles} />
-          <Route exact path={routes.ARTICLES + "/:slug"} component={Article} />
-          <Route exact path={routes.MANAGE_ARTICLE} component={ManageArticle} />
+          <Route exact path={routes.ARTICLES + "/:slug"} render={() => <Article user={user} />} />
+          {user ? <Route exact path={routes.MANAGE_ARTICLE} component={ManageArticle} /> : null}
+          {!user ? <Route exact path={routes.AUTHENTIFICATION} component={Authentification} /> : null}
           <Route render={() => <h1>Error 404</h1>} />
         </Switch>
       </Layout>

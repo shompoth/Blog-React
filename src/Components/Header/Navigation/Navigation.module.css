@@ -4,3 +4,16 @@
   padding: 0;
   display: flex;
 }
+
+.logout {
+  border: 0;
+  padding: 5px 10px;
+  cursor: pointer;
+  background: #fb743e;
+  color: white;
+
+  transition: all 0.3s;
+}
+.logout:hover {
+  background-color: #d3450d;
+}

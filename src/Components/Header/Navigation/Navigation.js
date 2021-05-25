@@ -2,11 +2,21 @@
 import React from "react";
 import classes from "./Navigation.module.css";
 import routes from "../../../config/routes";
+import fire from "../../../config/firebase";
+import { withRouter } from "react-router-dom";
+import { toast } from "react-toastify";
 
 // Composants
 import NavigationItem from "./NavigationItem/NavigationItem";
 
-function Navigation() {
+function Navigation(props) {
+  // Fonction
+  const logoutClickedHandler = () => {
+    fire.auth().signOut();
+    toast.success("À bientot");
+    props.history.push(routes.HOME);
+  };
+
   return (
     <ul className={classes.Navigation}>
       <NavigationItem exact to={routes.HOME}>
@@ -14,11 +24,19 @@ function Navigation() {
       </NavigationItem>
       <NavigationItem to={routes.ARTICLES}>Articles</NavigationItem>
       <NavigationItem to={routes.CONTACT}>Contact</NavigationItem>
-      <NavigationItem exact to={routes.MANAGE_ARTICLE}>
-        Ajouter
-      </NavigationItem>
+      {props.user ? (
+        <NavigationItem exact to={routes.MANAGE_ARTICLE}>
+          Ajouter
+        </NavigationItem>
+      ) : null}
+      {!props.user ? <NavigationItem to={routes.AUTHENTIFICATION}>Authentification</NavigationItem> : null}
+      {props.user ? (
+        <button onClick={logoutClickedHandler} className={classes.logout}>
+          Déconnexion
+        </button>
+      ) : null}
     </ul>
   );
 }
 
-export default Navigation;
+export default withRouter(Navigation);

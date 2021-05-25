@@ -24,9 +24,7 @@ function Articles() {
         }
         articlesArray.reverse();
 
-        articlesArray = articlesArray.filter(
-          (article) => article.brouillon === "false"
-        );
+        articlesArray = articlesArray.filter((article) => article.brouillon === "false");
 
         setArticles(articlesArray);
       })
@@ -34,6 +32,10 @@ function Articles() {
         console.log(error);
       });
   }, []);
+
+  useEffect(() => {
+    document.title = "Articles";
+  });
 
   // DisplayedArticles
 

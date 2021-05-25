@@ -1,5 +1,6 @@
-.ManageArticle {
+.form {
   width: 80%;
+  max-width: 400px;
   background-color: #d3e0ea;
   padding: 30px;
   margin: auto;
@@ -7,11 +8,7 @@
   text-align: left;
   margin-bottom: 25px;
 }
-
-.submit {
-  text-align: right;
-}
-.submit input {
+.button {
   padding: 10px 15px;
   background-color: #fb743e;
   color: white;
@@ -20,11 +17,23 @@
   cursor: pointer;
   border-radius: 4px;
 }
-.submit input:disabled {
+.button:disabled {
   opacity: 0.3;
   cursor: not-allowed;
 }
-.submit input:hover,
-.submit input:focus {
+.button:focus,
+.button:hover {
   background-color: #d3450d;
+}
+
+.buttons {
+  text-align: right;
+}
+
+.alert {
+  padding: 10px;
+  background-color: #ffacac;
+  border: 1px solid #f87c7c;
+  border-radius: 4px;
+  margin-bottom: 10px;
 }

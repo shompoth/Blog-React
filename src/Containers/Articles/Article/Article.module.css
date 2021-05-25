@@ -6,6 +6,8 @@
 .content {
   text-align: left;
   padding: 30px;
+  white-space: pre-wrap;
+
 }
 
 .author {
