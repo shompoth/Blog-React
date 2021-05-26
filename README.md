@@ -1,5 +1,7 @@
 # Blog React.js
 
+![blog-react](https://github.com/shompoth/Blog-React/blob/main/src/assets/img/screenshot-blog-react.png)
+
 Ce projet est un blog réalisé from scratch.
 
 ## Fonctionnalités :
